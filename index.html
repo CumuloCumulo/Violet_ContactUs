@@ -422,6 +422,220 @@
                 border-top: 1px solid rgba(255, 255, 255, 0.5);
             }
 
+            /* ==========================================
+           注册模态框 (Registration Modal)
+           ========================================== */
+            .modal-overlay {
+                display: none;
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(58, 64, 90, 0.4);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                z-index: 1000;
+                justify-content: center;
+                align-items: center;
+                opacity: 0;
+                transition: opacity 0.3s var(--ease-organic);
+            }
+            .modal-overlay.active {
+                display: flex;
+                opacity: 1;
+            }
+            .modal-card {
+                background: var(--glass-bg);
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                border-radius: 32px;
+                padding: 3rem;
+                max-width: 460px;
+                width: 90%;
+                box-shadow: 0 30px 60px rgba(140, 160, 255, 0.2),
+                            inset 0 0 0 1px var(--glass-light);
+                position: relative;
+            }
+            .modal-close {
+                position: absolute;
+                top: 1.2rem; right: 1.5rem;
+                background: none; border: none;
+                font-size: 1.5rem; color: var(--ink-muted);
+                cursor: pointer; line-height: 1;
+                transition: color 0.2s;
+            }
+            .modal-close:hover { color: var(--ink); }
+
+            /* 步骤指示器 */
+            .step-indicator {
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+                margin-bottom: 2rem;
+            }
+            .step-dot {
+                width: 8px; height: 8px;
+                border-radius: 50%;
+                background: var(--violet-light);
+                transition: all 0.3s var(--ease-organic);
+            }
+            .step-dot.active {
+                background: var(--violet-main);
+                width: 24px;
+                border-radius: 4px;
+            }
+            .step-dot.done {
+                background: var(--violet-deep);
+            }
+
+            /* 表单步骤 */
+            .reg-step { display: none; }
+            .reg-step.active {
+                display: block;
+                animation: fadeUpAnim 0.4s var(--ease-organic) forwards;
+            }
+            .reg-step h3 {
+                font-family: var(--font-serif);
+                font-style: italic;
+                font-size: 1.6rem;
+                color: var(--violet-deep);
+                margin-bottom: 0.5rem;
+            }
+            .reg-step p.step-desc {
+                font-size: 14px;
+                color: var(--ink-muted);
+                margin-bottom: 1.5rem;
+            }
+            .reg-field {
+                margin-bottom: 1.2rem;
+            }
+            .reg-field label {
+                display: block;
+                font-size: 13px;
+                font-weight: 500;
+                color: var(--ink);
+                margin-bottom: 0.4rem;
+            }
+            .reg-field input {
+                width: 100%;
+                padding: 12px 16px;
+                border-radius: 16px;
+                border: 1px solid rgba(255,255,255,0.8);
+                background: rgba(255,255,255,0.4);
+                font-family: var(--font-sans);
+                font-size: 14px;
+                outline: none;
+                transition: border-color 0.2s, box-shadow 0.2s;
+                color: var(--ink);
+            }
+            .reg-field input:focus {
+                border-color: var(--violet-main);
+                box-shadow: 0 0 0 3px rgba(140,160,255,0.15);
+            }
+            .reg-field .field-hint {
+                font-size: 12px;
+                color: var(--ink-muted);
+                margin-top: 0.3rem;
+            }
+            .reg-field .field-error {
+                font-size: 12px;
+                color: #e06060;
+                margin-top: 0.3rem;
+                display: none;
+            }
+            .reg-btn {
+                width: 100%;
+                padding: 13px;
+                border: none;
+                border-radius: 30px;
+                background: var(--violet-main);
+                color: white;
+                font-family: var(--font-sans);
+                font-size: 15px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s var(--ease-organic);
+                margin-top: 0.5rem;
+                box-shadow: 0 10px 20px rgba(107,130,240,0.2);
+            }
+            .reg-btn:hover {
+                background: var(--violet-deep);
+                transform: translateY(-1px);
+            }
+            .reg-btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                transform: none;
+            }
+            .resend-link {
+                display: inline-block;
+                margin-top: 0.8rem;
+                font-size: 13px;
+                color: var(--violet-deep);
+                cursor: pointer;
+                text-decoration: underline;
+                background: none;
+                border: none;
+                font-family: var(--font-sans);
+            }
+            .resend-link:disabled {
+                color: var(--ink-muted);
+                cursor: not-allowed;
+                text-decoration: none;
+            }
+
+            /* 成功状态 */
+            .reg-success {
+                text-align: center;
+                display: none;
+            }
+            .reg-success.active {
+                display: block;
+                animation: fadeUpAnim 0.5s var(--ease-organic) forwards;
+            }
+            .success-icon {
+                width: 64px; height: 64px;
+                border-radius: 50%;
+                background: var(--spring-green);
+                margin: 0 auto 1.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2rem;
+            }
+            .reg-success h3 {
+                font-family: var(--font-serif);
+                font-style: italic;
+                font-size: 1.6rem;
+                color: var(--violet-deep);
+                margin-bottom: 0.5rem;
+            }
+            .reg-success p {
+                font-size: 14px;
+                color: var(--ink-muted);
+                line-height: 1.6;
+            }
+
+            /* Toast */
+            .toast {
+                position: fixed;
+                bottom: 2rem;
+                left: 50%;
+                transform: translateX(-50%) translateY(20px);
+                background: var(--ink);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 16px;
+                font-size: 14px;
+                z-index: 2000;
+                opacity: 0;
+                transition: all 0.3s var(--ease-organic);
+                pointer-events: none;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            }
+            .toast.show {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+
             @media (max-width: 960px) {
                 .hero {
                     flex-direction: column;
@@ -448,6 +662,9 @@
                     right: auto;
                     top: auto;
                     margin: 2rem auto;
+                }
+                .modal-card {
+                    padding: 2rem;
                 }
             }
         </style>
@@ -501,20 +718,7 @@
                             flex-wrap: wrap;
                         "
                     >
-                        <input
-                            type="email"
-                            placeholder="输入 @smail.nju.edu.cn"
-                            style="
-                                padding: 14px 20px;
-                                border-radius: 30px;
-                                border: 1px solid rgba(255, 255, 255, 0.8);
-                                background: rgba(255, 255, 255, 0.4);
-                                outline: none;
-                                width: 250px;
-                                font-family: var(--font-sans);
-                            "
-                        />
-                        <a href="#" class="btn-primary">开始认证</a>
+                        <button class="btn-primary" onclick="openModal()">开始认证</button>
                     </div>
                 </div>
                 <div class="hero-visual fade-up delay-2">
@@ -818,7 +1022,7 @@
                     <p style="color: var(--ink-muted); margin-bottom: 2rem">
                         使用南大邮箱认证，开启一段浪漫的破冰之旅。或者，成为军师围观真实的恋爱案例。
                     </p>
-                    <a href="#" class="btn-primary">申请当事人</a>
+                    <a href="#" class="btn-primary" onclick="openModal(); return false;">申请当事人</a>
                     <a
                         href="#"
                         class="btn-primary"
@@ -829,10 +1033,74 @@
                             margin-left: 1rem;
                             box-shadow: none;
                         "
+                        onclick="openModal(); return false;"
                         >认证军师资质</a
                     >
                 </div>
             </section>
+            <!-- 注册模态框 -->
+            <div class="modal-overlay" id="regModal">
+                <div class="modal-card">
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+
+                    <div class="step-indicator">
+                        <div class="step-dot active" id="dot1"></div>
+                        <div class="step-dot" id="dot2"></div>
+                        <div class="step-dot" id="dot3"></div>
+                    </div>
+
+                    <!-- Step 1: 校园邮箱 -->
+                    <div class="reg-step active" id="step1">
+                        <h3>校园认证</h3>
+                        <p class="step-desc">输入你的南大校园邮箱，我们将发送验证码</p>
+                        <div class="reg-field">
+                            <label for="campusEmail">校园邮箱</label>
+                            <input type="email" id="campusEmail" placeholder="your@smail.nju.edu.cn" />
+                            <div class="field-hint">仅支持 @smail.nju.edu.cn 邮箱</div>
+                            <div class="field-error" id="campusEmailError"></div>
+                        </div>
+                        <button class="reg-btn" id="sendCodeBtn" onclick="handleSendCode()">发送验证码</button>
+                    </div>
+
+                    <!-- Step 2: 验证码 -->
+                    <div class="reg-step" id="step2">
+                        <h3>输入验证码</h3>
+                        <p class="step-desc">验证码已发送至 <strong id="sentEmailDisplay"></strong></p>
+                        <div class="reg-field">
+                            <label for="verifyCode">6 位验证码</label>
+                            <input type="text" id="verifyCode" maxlength="6" placeholder="000000" inputmode="numeric" />
+                            <div class="field-error" id="verifyCodeError"></div>
+                        </div>
+                        <button class="reg-btn" onclick="handleVerify()">验证</button>
+                        <button class="resend-link" id="resendBtn" onclick="handleResend()">重新发送</button>
+                    </div>
+
+                    <!-- Step 3: 用户信息 -->
+                    <div class="reg-step" id="step3">
+                        <h3>完成注册</h3>
+                        <p class="step-desc">设置你的用户名和常用邮箱</p>
+                        <div class="reg-field">
+                            <label for="regUsername">用户名</label>
+                            <input type="text" id="regUsername" placeholder="2-20 位字母、数字或下划线" maxlength="20" />
+                            <div class="field-error" id="usernameError"></div>
+                        </div>
+                        <div class="reg-field">
+                            <label for="notifyEmail">常用邮箱</label>
+                            <input type="email" id="notifyEmail" placeholder="接收通知的邮箱" />
+                            <div class="field-hint">注册成功后将向此邮箱发送确认信息</div>
+                            <div class="field-error" id="notifyEmailError"></div>
+                        </div>
+                        <button class="reg-btn" id="registerBtn" onclick="handleRegister()">完成注册</button>
+                    </div>
+
+                    <!-- 成功 -->
+                    <div class="reg-success" id="regSuccess">
+                        <div class="success-icon">&#10003;</div>
+                        <h3>预注册成功</h3>
+                        <p>确认信息已发送至你的常用邮箱。<br/>我们会在产品上线后第一时间通知你。</p>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <footer>
@@ -850,5 +1118,292 @@
                 </p>
             </div>
         </footer>
+        <script>
+            // ============================================
+            // Violet 预注册前端逻辑
+            // ============================================
+
+            // TODO: 部署 GAS 后替换为实际 Web App URL
+            const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw5AVboANz29ORAHK43PXa_eeApZfK6IooK7bLD98-HrehBL2nVGVNQvOkYwVqjDAml7Q/exec';
+
+            let currentStep = 1;
+            let campusEmail = '';
+            let resendTimer = null;
+
+            // ---------- 模态框控制 ----------
+
+            function openModal() {
+                const modal = document.getElementById('regModal');
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                const modal = document.getElementById('regModal');
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+                resetForm();
+            }
+
+            function resetForm() {
+                currentStep = 1;
+                campusEmail = '';
+                document.getElementById('campusEmail').value = '';
+                document.getElementById('verifyCode').value = '';
+                document.getElementById('regUsername').value = '';
+                document.getElementById('notifyEmail').value = '';
+                clearErrors();
+                showStep(1);
+                document.getElementById('regSuccess').classList.remove('active');
+                document.querySelector('.step-indicator').style.display = 'flex';
+                if (resendTimer) clearInterval(resendTimer);
+                document.getElementById('sendCodeBtn').disabled = false;
+            }
+
+            // ---------- 步骤切换 ----------
+
+            function showStep(step) {
+                currentStep = step;
+                document.querySelectorAll('.reg-step').forEach(function(el) {
+                    el.classList.remove('active');
+                });
+                var stepEl = document.getElementById('step' + step);
+                if (stepEl) stepEl.classList.add('active');
+
+                for (var i = 1; i <= 3; i++) {
+                    var dot = document.getElementById('dot' + i);
+                    dot.className = 'step-dot';
+                    if (i < step) dot.classList.add('done');
+                    if (i === step) dot.classList.add('active');
+                }
+            }
+
+            // ---------- Step 1: 发送验证码 ----------
+
+            function handleSendCode() {
+                var emailInput = document.getElementById('campusEmail');
+                var email = emailInput.value.trim().toLowerCase();
+                clearErrors();
+
+                if (!email) {
+                    showFieldError('campusEmailError', '请输入校园邮箱');
+                    return;
+                }
+                if (!email.endsWith('@smail.nju.edu.cn')) {
+                    showFieldError('campusEmailError', '请使用 @smail.nju.edu.cn 邮箱');
+                    return;
+                }
+
+                var btn = document.getElementById('sendCodeBtn');
+                btn.disabled = true;
+                btn.textContent = '发送中...';
+
+                callGAS('sendCode', { campusEmail: email }, function(res) {
+                    if (res.success) {
+                        campusEmail = email;
+                        document.getElementById('sentEmailDisplay').textContent = email;
+                        showStep(2);
+                        startResendCountdown();
+                    } else {
+                        showFieldError('campusEmailError', res.message);
+                        btn.disabled = false;
+                        btn.textContent = '发送验证码';
+                    }
+                }, function() {
+                    showToast('网络错误，请稍后重试');
+                    btn.disabled = false;
+                    btn.textContent = '发送验证码';
+                });
+            }
+
+            // ---------- Step 2: 验证码验证 ----------
+
+            function handleVerify() {
+                var code = document.getElementById('verifyCode').value.trim();
+                clearErrors();
+
+                if (!code || code.length !== 6) {
+                    showFieldError('verifyCodeError', '请输入 6 位验证码');
+                    return;
+                }
+
+                // 验证码校验在最终注册时由后端完成，前端暂存后进入下一步
+                showStep(3);
+            }
+
+            // ---------- 重发验证码 ----------
+
+            function startResendCountdown() {
+                var btn = document.getElementById('resendBtn');
+                var seconds = 60;
+                btn.disabled = true;
+                btn.textContent = seconds + ' 秒后可重发';
+
+                resendTimer = setInterval(function() {
+                    seconds--;
+                    if (seconds <= 0) {
+                        clearInterval(resendTimer);
+                        btn.disabled = false;
+                        btn.textContent = '重新发送';
+                    } else {
+                        btn.textContent = seconds + ' 秒后可重发';
+                    }
+                }, 1000);
+            }
+
+            function handleResend() {
+                var btn = document.getElementById('resendBtn');
+                btn.disabled = true;
+
+                callGAS('sendCode', { campusEmail: campusEmail }, function(res) {
+                    if (res.success) {
+                        showToast('验证码已重新发送');
+                        startResendCountdown();
+                    } else {
+                        showToast(res.message);
+                        btn.disabled = false;
+                    }
+                }, function() {
+                    showToast('网络错误');
+                    btn.disabled = false;
+                });
+            }
+
+            // ---------- Step 3: 完成注册 ----------
+
+            function handleRegister() {
+                var username = document.getElementById('regUsername').value.trim();
+                var notifyEmail = document.getElementById('notifyEmail').value.trim().toLowerCase();
+                var code = document.getElementById('verifyCode').value.trim();
+                clearErrors();
+
+                var valid = true;
+
+                if (!username) {
+                    showFieldError('usernameError', '请输入用户名');
+                    valid = false;
+                } else if (!/^[a-zA-Z0-9_]{2,20}$/.test(username)) {
+                    showFieldError('usernameError', '仅支持 2-20 位字母、数字或下划线');
+                    valid = false;
+                }
+
+                if (!notifyEmail) {
+                    showFieldError('notifyEmailError', '请输入常用邮箱');
+                    valid = false;
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notifyEmail)) {
+                    showFieldError('notifyEmailError', '邮箱格式不正确');
+                    valid = false;
+                }
+
+                if (!valid) return;
+
+                var btn = document.getElementById('registerBtn');
+                btn.disabled = true;
+                btn.textContent = '注册中...';
+
+                callGAS('register', {
+                    campusEmail: campusEmail,
+                    code: code,
+                    username: username,
+                    notifyEmail: notifyEmail
+                }, function(res) {
+                    if (res.success) {
+                        document.querySelectorAll('.reg-step').forEach(function(el) {
+                            el.classList.remove('active');
+                        });
+                        document.querySelector('.step-indicator').style.display = 'none';
+                        document.getElementById('regSuccess').classList.add('active');
+                    } else {
+                        if (res.message.indexOf('验证码') !== -1) {
+                            showFieldError('verifyCodeError', res.message);
+                            showStep(2);
+                        } else if (res.message.indexOf('用户名') !== -1) {
+                            showFieldError('usernameError', res.message);
+                        } else {
+                            showToast(res.message);
+                        }
+                        btn.disabled = false;
+                        btn.textContent = '完成注册';
+                    }
+                }, function() {
+                    showToast('网络错误，请稍后重试');
+                    btn.disabled = false;
+                    btn.textContent = '完成注册';
+                });
+            }
+
+            // ---------- 用户名实时检查 ----------
+
+            (function() {
+                var timer = null;
+                var usernameInput = document.getElementById('regUsername');
+                usernameInput.addEventListener('input', function() {
+                    var val = this.value.trim();
+                    clearTimeout(timer);
+                    if (val.length >= 2 && /^[a-zA-Z0-9_]+$/.test(val)) {
+                        timer = setTimeout(function() {
+                            callGAS('checkUsername', { username: val }, function(res) {
+                                if (res.success && !res.available) {
+                                    showFieldError('usernameError', '该用户名已被占用');
+                                }
+                            }, function() {});
+                        }, 500);
+                    }
+                });
+            })();
+
+            // ---------- 工具函数 ----------
+
+            function callGAS(action, data, onSuccess, onError) {
+                data.action = action;
+                fetch(GAS_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(data)
+                })
+                .then(function(r) { return r.json(); })
+                .then(onSuccess)
+                .catch(onError);
+            }
+
+            function showFieldError(id, msg) {
+                var el = document.getElementById(id);
+                el.textContent = msg;
+                el.style.display = 'block';
+            }
+
+            function clearErrors() {
+                document.querySelectorAll('.field-error').forEach(function(el) {
+                    el.style.display = 'none';
+                    el.textContent = '';
+                });
+            }
+
+            function showToast(msg) {
+                var existing = document.querySelector('.toast');
+                if (existing) existing.remove();
+
+                var toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = msg;
+                document.body.appendChild(toast);
+
+                setTimeout(function() { toast.classList.add('show'); }, 10);
+                setTimeout(function() {
+                    toast.classList.remove('show');
+                    setTimeout(function() { toast.remove(); }, 300);
+                }, 3000);
+            }
+
+            // 点击遮罩关闭
+            document.getElementById('regModal').addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+
+            // ESC 关闭
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeModal();
+            });
+        </script>
     </body>
 </html>
