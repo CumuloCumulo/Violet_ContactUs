@@ -48,7 +48,9 @@ async function storeCode(campusEmail, code) {
   );
 
   if (!response.ok) {
-    throw new Error("存储验证码失败");
+    const errBody = await response.text();
+    console.error("SeaTable storeCode error:", response.status, errBody);
+    throw new Error(`存储验证码失败: ${errBody}`);
   }
 }
 
