@@ -1,41 +1,20 @@
 // Vercel Serverless Function: 完成注册
-// 使用 SeaTable API 存储用户数据 + 阿里云 DirectMail 发送确认邮件
+// SeaTable API Gateway + 阿里云 DirectMail
 
 import { sendEmail } from "./_lib/alibaba-email.js";
+import { listRows, appendRows, deleteRow } from "./_lib/seatable.js";
 
-const CONFIG = {
-  seatable: {
-    baseUrl: "https://table.nju.edu.cn",
-    apiToken: "99f51181923573ac478be42e9a563727dfe99826",
-    dtableUuid: "94fd388a-d14d-4afe-b74e-fffbfee64159",
-    tableName: "Violet预注册",
-  },
-};
-
-// 共享验证码存储（实际部署建议用 Redis 或外部存储）
-// 注意：Vercel serverless 每次执行是独立的，这里需要用外部存储
-// 为简化，我们用 SeaTable 存储临时验证码
+const TABLE = "Violet预注册";
+const TEMP_TABLE = "验证码临时";
 
 // 从 SeaTable 获取验证码
 async function getStoredCode(campusEmail) {
-  const { baseUrl, apiToken, dtableUuid } = CONFIG.seatable;
-
-  // 查找临时验证码表
-  const response = await fetch(
-    `${baseUrl}/dtable-server/api/v1/dtables/${dtableUuid}/rows/?table_name=验证码临时`,
-    {
-      headers: { Authorization: `Bearer ${apiToken}` },
-    },
-  );
-
-  const data = await response.json();
-  if (data.rows) {
-    const row = data.rows.find((r) => r["校园邮箱"] === campusEmail);
-    if (row) {
-      const expiresAt = parseInt(row["过期时间"]);
-      if (Date.now() < expiresAt) {
-        return row["验证码"];
-      }
+  const rows = await listRows(TEMP_TABLE);
+  const row = rows.find((r) => r["校园邮箱"] === campusEmail);
+  if (row) {
+    const expiresAt = parseInt(row["过期时间"]);
+    if (Date.now() < expiresAt) {
+      return row["验证码"];
     }
   }
   return null;
@@ -43,78 +22,20 @@ async function getStoredCode(campusEmail) {
 
 // 删除已使用的验证码
 async function deleteStoredCode(campusEmail) {
-  const { baseUrl, apiToken, dtableUuid } = CONFIG.seatable;
-
-  // 先获取 row_id
-  const listRes = await fetch(
-    `${baseUrl}/dtable-server/api/v1/dtables/${dtableUuid}/rows/?table_name=验证码临时`,
-    {
-      headers: { Authorization: `Bearer ${apiToken}` },
-    },
-  );
-
-  const listData = await listRes.json();
-  if (listData.rows) {
-    const row = listData.rows.find((r) => r["校园邮箱"] === campusEmail);
-    if (row && row._id) {
-      // 删除行
-      await fetch(
-        `${baseUrl}/dtable-server/api/v1/dtables/${dtableUuid}/rows/${row._id}/`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${apiToken}` },
-        },
-      );
-    }
+  const rows = await listRows(TEMP_TABLE);
+  const row = rows.find((r) => r["校园邮箱"] === campusEmail);
+  if (row && row._id) {
+    await deleteRow(TEMP_TABLE, row._id);
   }
-}
-
-// 添加用户到表格
-async function appendRow(campusEmail, username, notifyEmail) {
-  const { baseUrl, apiToken, dtableUuid, tableName } = CONFIG.seatable;
-
-  const row = {
-    注册时间: new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" }),
-    校园邮箱: campusEmail,
-    用户名: username,
-    常用邮箱: notifyEmail,
-    状态: "pre-registered",
-  };
-
-  const response = await fetch(
-    `${baseUrl}/dtable-server/api/v1/dtables/${dtableUuid}/rows/`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ rows: [row], table_name: tableName }),
-    },
-  );
-
-  return response.json();
 }
 
 // 检查用户名是否已存在
 async function checkUsernameExists(username) {
-  const { baseUrl, apiToken, dtableUuid, tableName } = CONFIG.seatable;
-
-  const response = await fetch(
-    `${baseUrl}/dtable-server/api/v1/dtables/${dtableUuid}/rows/?table_name=${encodeURIComponent(tableName)}`,
-    {
-      headers: { Authorization: `Bearer ${apiToken}` },
-    },
-  );
-
-  const data = await response.json();
-  if (data.rows) {
-    return data.rows.some((row) => row["用户名"] === username);
-  }
-  return false;
+  const rows = await listRows(TABLE);
+  return rows.some((row) => row["用户名"] === username);
 }
 
-// 发送确认邮件（通过阿里云 DirectMail）
+// 发送确认邮件
 async function sendConfirmationEmail(notifyEmail, username, campusEmail) {
   await sendEmail({
     to: notifyEmail,
@@ -154,7 +75,6 @@ export default async function handler(req, res) {
   try {
     const { campusEmail, code, username, notifyEmail } = req.body;
 
-    // 基本校验
     if (!campusEmail || !code || !username || !notifyEmail) {
       return res.json({ success: false, message: "请填写所有字段" });
     }
@@ -191,7 +111,15 @@ export default async function handler(req, res) {
     }
 
     // 写入 SeaTable
-    await appendRow(campusEmail, username, notifyEmail);
+    await appendRows(TABLE, [
+      {
+        注册时间: new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" }),
+        校园邮箱: campusEmail,
+        用户名: username,
+        常用邮箱: notifyEmail,
+        状态: "pre-registered",
+      },
+    ]);
 
     // 删除验证码
     await deleteStoredCode(campusEmail);

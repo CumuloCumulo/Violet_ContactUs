@@ -1,88 +1,46 @@
 // Vercel Serverless Function: 发送验证码
-// 使用 SeaTable API 存储验证码 + 阿里云 DirectMail 发送邮件
+// SeaTable API Gateway + 阿里云 DirectMail
 
 import { sendEmail } from "./_lib/alibaba-email.js";
+import { listRows, appendRows, deleteRow } from "./_lib/seatable.js";
 
-// 配置
-const CONFIG = {
-  seatable: {
-    baseUrl: "https://table.nju.edu.cn",
-    apiToken: "99f51181923573ac478be42e9a563727dfe99826",
-    dtableUuid: "94fd388a-d14d-4afe-b74e-fffbfee64159",
-    tableName: "Violet预注册",
-    tempTableName: "验证码临时",
-  },
-};
+const TABLE = "Violet预注册";
+const TEMP_TABLE = "验证码临时";
 
 // 生成6位验证码
 function generateCode() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
-// 存储验证码到 SeaTable
+// 存储验证码
 async function storeCode(campusEmail, code) {
-  const { baseUrl, apiToken, dtableUuid, tempTableName } = CONFIG.seatable;
+  const expiresAt = Date.now() + 5 * 60 * 1000; // 5分钟过期
 
-  const expiresAt = Date.now() + 5 * 60 * 1000; // 5分钟后过期
-
-  const row = {
-    校园邮箱: campusEmail,
-    验证码: code,
-    过期时间: String(expiresAt),
-  };
-
-  // 先删除旧的验证码（如果存在）
+  // 先删除旧验证码
   await deleteOldCode(campusEmail);
 
-  // 添加新验证码
-  const response = await fetch(
-    `${baseUrl}/dtable-server/api/v1/dtables/${dtableUuid}/rows/`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ rows: [row], table_name: tempTableName }),
-    },
-  );
-
-  if (!response.ok) {
-    const errBody = await response.text();
-    console.error("SeaTable storeCode error:", response.status, errBody);
-    throw new Error(`存储验证码失败: ${errBody}`);
-  }
+  // 写入新验证码
+  await appendRows(TEMP_TABLE, [
+    { 校园邮箱: campusEmail, 验证码: code, 过期时间: String(expiresAt) },
+  ]);
 }
 
 // 删除旧验证码
 async function deleteOldCode(campusEmail) {
-  const { baseUrl, apiToken, dtableUuid, tempTableName } = CONFIG.seatable;
-
-  // 获取所有行
-  const listRes = await fetch(
-    `${baseUrl}/dtable-server/api/v1/dtables/${dtableUuid}/rows/?table_name=${encodeURIComponent(tempTableName)}`,
-    {
-      headers: { Authorization: `Bearer ${apiToken}` },
-    },
-  );
-
-  const listData = await listRes.json();
-  if (listData.rows) {
-    const oldRow = listData.rows.find((r) => r["校园邮箱"] === campusEmail);
-    if (oldRow && oldRow._id) {
-      // 删除旧行
-      await fetch(
-        `${baseUrl}/dtable-server/api/v1/dtables/${dtableUuid}/rows/${oldRow._id}/`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${apiToken}` },
-        },
-      );
-    }
+  const rows = await listRows(TEMP_TABLE);
+  const oldRow = rows.find((r) => r["校园邮箱"] === campusEmail);
+  if (oldRow && oldRow._id) {
+    await deleteRow(TEMP_TABLE, oldRow._id);
   }
 }
 
-// 发送验证码邮件（通过阿里云 DirectMail）
+// 检查邮箱是否已注册
+async function checkEmailExists(campusEmail) {
+  const rows = await listRows(TABLE);
+  return rows.some((row) => row["校园邮箱"] === campusEmail);
+}
+
+// 发送验证码邮件
 async function sendVerificationEmail(to, code) {
   await sendEmail({
     to,
@@ -110,31 +68,8 @@ async function sendVerificationEmail(to, code) {
   });
 }
 
-// 检查邮箱是否已注册
-async function checkEmailExists(campusEmail) {
-  const { baseUrl, apiToken, dtableUuid, tableName } = CONFIG.seatable;
-
-  if (!dtableUuid) {
-    return false; // 未配置时跳过检查
-  }
-
-  const response = await fetch(
-    `${baseUrl}/dtable-server/api/v1/dtables/${dtableUuid}/rows/?table_name=${encodeURIComponent(tableName)}`,
-    {
-      headers: { Authorization: `Bearer ${apiToken}` },
-    },
-  );
-
-  const data = await response.json();
-  if (data.rows) {
-    return data.rows.some((row) => row["校园邮箱"] === campusEmail);
-  }
-  return false;
-}
-
 // Handler
 export default async function handler(req, res) {
-  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -163,21 +98,13 @@ export default async function handler(req, res) {
       });
     }
 
-    // 检查是否已注册
     const exists = await checkEmailExists(campusEmail);
     if (exists) {
       return res.json({ success: false, message: "该校园邮箱已注册" });
     }
 
-    // 生成验证码
     const code = generateCode();
-
-    // 存储到 SeaTable
-    if (CONFIG.seatable.dtableUuid) {
-      await storeCode(campusEmail, code);
-    }
-
-    // 发送邮件
+    await storeCode(campusEmail, code);
     await sendVerificationEmail(campusEmail, code);
 
     res.json({ success: true, message: "验证码已发送" });

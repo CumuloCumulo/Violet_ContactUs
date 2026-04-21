@@ -1,13 +1,8 @@
 // Vercel Serverless Function: 检查用户名是否可用
 
-const CONFIG = {
-  seatable: {
-    baseUrl: "https://table.nju.edu.cn",
-    apiToken: "99f51181923573ac478be42e9a563727dfe99826",
-    dtableUuid: "94fd388a-d14d-4afe-b74e-fffbfee64159", // TODO: 填入 dtable_uuid
-    tableName: "Violet预注册",
-  },
-};
+import { listRows } from "./_lib/seatable.js";
+
+const TABLE = "Violet预注册";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -38,30 +33,8 @@ export default async function handler(req, res) {
       });
     }
 
-    const { baseUrl, apiToken, dtableUuid, tableName } = CONFIG.seatable;
-
-    // 检查是否配置了 dtableUuid
-    if (!dtableUuid) {
-      // 未配置时直接返回可用（开发阶段）
-      return res.json({
-        success: true,
-        available: true,
-        message: "用户名可用",
-      });
-    }
-
-    const response = await fetch(
-      `${baseUrl}/dtable-server/api/v1/dtables/${dtableUuid}/rows/?table_name=${encodeURIComponent(tableName)}`,
-      {
-        headers: { Authorization: `Bearer ${apiToken}` },
-      },
-    );
-
-    const data = await response.json();
-    let exists = false;
-    if (data.rows) {
-      exists = data.rows.some((row) => row["用户名"] === username);
-    }
+    const rows = await listRows(TABLE);
+    const exists = rows.some((row) => row["用户名"] === username);
 
     if (exists) {
       return res.json({
