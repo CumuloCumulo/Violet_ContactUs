@@ -1124,7 +1124,8 @@
             // ============================================
 
             // TODO: 部署 GAS 后替换为实际 Web App URL
-            const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw5AVboANz29ORAHK43PXa_eeApZfK6IooK7bLD98-HrehBL2nVGVNQvOkYwVqjDAml7Q/exec';
+            // TODO: 部署 Vercel 后端后替换为实际 URL
+            const API_BASE_URL = 'https://violet-contact-us.vercel.app/api';
 
             let currentStep = 1;
             let campusEmail = '';
@@ -1198,7 +1199,7 @@
                 btn.disabled = true;
                 btn.textContent = '发送中...';
 
-                callGAS('sendCode', { campusEmail: email }, function(res) {
+                callAPI('/sendCode', { campusEmail: email }, function(res) {
                     if (res.success) {
                         campusEmail = email;
                         document.getElementById('sentEmailDisplay').textContent = email;
@@ -1255,7 +1256,7 @@
                 var btn = document.getElementById('resendBtn');
                 btn.disabled = true;
 
-                callGAS('sendCode', { campusEmail: campusEmail }, function(res) {
+                callAPI('/sendCode', { campusEmail: campusEmail }, function(res) {
                     if (res.success) {
                         showToast('验证码已重新发送');
                         startResendCountdown();
@@ -1301,7 +1302,7 @@
                 btn.disabled = true;
                 btn.textContent = '注册中...';
 
-                callGAS('register', {
+                callAPI('/register', {
                     campusEmail: campusEmail,
                     code: code,
                     username: username,
@@ -1342,7 +1343,7 @@
                     clearTimeout(timer);
                     if (val.length >= 2 && /^[a-zA-Z0-9_]+$/.test(val)) {
                         timer = setTimeout(function() {
-                            callGAS('checkUsername', { username: val }, function(res) {
+                            callAPI('/checkUsername', { username: val }, function(res) {
                                 if (res.success && !res.available) {
                                     showFieldError('usernameError', '该用户名已被占用');
                                 }
@@ -1354,11 +1355,10 @@
 
             // ---------- 工具函数 ----------
 
-            function callGAS(action, data, onSuccess, onError) {
-                data.action = action;
-                fetch(GAS_API_URL, {
+            function callAPI(endpoint, data, onSuccess, onError) {
+                fetch(API_BASE_URL + endpoint, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'text/plain' },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 })
                 .then(function(r) { return r.json(); })
