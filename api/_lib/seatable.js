@@ -29,7 +29,7 @@ async function getAccessToken() {
 export async function listRows(tableName) {
   const token = await getAccessToken();
   const res = await fetch(
-    `${BASE_URL}/api-gateway/api/v2/dtables/${DTABLE_UUID}/rows/?table_name=${encodeURIComponent(tableName)}`,
+    `${BASE_URL}/api-gateway/api/v2/dtables/${DTABLE_UUID}/rows/?table_name=${encodeURIComponent(tableName)}&convert_keys=true`,
     { headers: { Authorization: `Bearer ${token}` } },
   );
   const data = await res.json();
