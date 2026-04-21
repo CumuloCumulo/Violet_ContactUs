@@ -1229,26 +1229,20 @@
 
                 // 自动拼接后缀
                 var email = input.includes('@') ? input : input + '@smail.nju.edu.cn';
+                campusEmail = email;
+                document.getElementById('sentEmailDisplay').textContent = email;
 
-                var btn = document.getElementById('sendCodeBtn');
-                btn.disabled = true;
-                btn.textContent = '发送中...';
+                // 立即跳转到验证码步骤
+                showStep(2);
+                startResendCountdown();
 
+                // 后台发送验证码
                 callAPI('/sendCode', { campusEmail: email }, function(res) {
-                    if (res.success) {
-                        campusEmail = email;
-                        document.getElementById('sentEmailDisplay').textContent = email;
-                        showStep(2);
-                        startResendCountdown();
-                    } else {
-                        showFieldError('campusEmailError', res.message);
-                        btn.disabled = false;
-                        btn.textContent = '发送验证码';
+                    if (!res.success) {
+                        showToast(res.message || '发送失败，请重试');
                     }
                 }, function() {
                     showToast('网络错误，请稍后重试');
-                    btn.disabled = false;
-                    btn.textContent = '发送验证码';
                 });
             }
 
