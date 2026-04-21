@@ -1,0 +1,19 @@
+# Vercel
+.vercel
+.vercelignore
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# macOS
+.DS_Store
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo

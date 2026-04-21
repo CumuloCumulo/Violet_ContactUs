@@ -1,7 +1,7 @@
 // Vercel Serverless Function: 发送验证码
 // 使用 SeaTable API 存储验证码 + 阿里云 DirectMail 发送邮件
 
-import { sendEmail } from "./lib/alibaba-email.js";
+import { sendEmail } from "./_lib/alibaba-email.js";
 
 // 配置
 const CONFIG = {

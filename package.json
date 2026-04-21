@@ -1,0 +1,9 @@
+{
+  "name": "violet-pre-registration",
+  "version": "1.0.0",
+  "description": "Violet 预注册 - Vercel + SeaTable + SendCloud",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  }
+}

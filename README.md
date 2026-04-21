@@ -19,6 +19,15 @@ Violet 是一款专为南京大学学生设计的破冰交友平台。基于 94 
 
 ## 核心功能
 
+### 预注册系统（NEW）
+
+校园邮箱验证码认证 + 用户名/常用邮箱收集。数据存储于 NJU SeaTable，邮件通过 SendCloud 发送。
+
+- **后端**：Vercel Serverless Functions（国内可访问）
+- **数据**：NJU SeaTable (table.nju.edu.cn)
+- **邮件**：SendCloud（免费额度）
+- **完整部署指南**：查看 [backend/setup.md](backend/setup.md)
+
 ### 灵魂画廊 — 反算法匹配
 
 不足 30% 的用户信任黑盒算法。Violet 将筛选权交还用户：列表直接平铺展示用户的校区、年级与具体兴趣标签（如摄影、小众乐队），喜欢就发起牵线。
@@ -81,7 +90,16 @@ open index.html
 
 ```
 Violet_ContactUs/
-├── index.html    # 完整的单页落地页（HTML + CSS 内联）
+├── index.html        # 完整的单页落地页（HTML + CSS 内联）
+├── api/              # Vercel Serverless Functions
+│   ├── sendCode.js   # 发送验证码
+│   ├── register.js   # 完成注册
+│   └── checkUsername.js  # 检查用户名
+├── backend/          # 后端配置和文档
+│   ├── Code.gs       # (已弃用) GAS 后端
+│   └── setup.md      # 部署指南
+├── package.json      # Vercel 配置
+├── vercel.json       # Vercel 路由配置
 └── README.md
 ```
 

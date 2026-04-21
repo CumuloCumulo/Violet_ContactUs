@@ -1,7 +1,7 @@
 // Vercel Serverless Function: 完成注册
 // 使用 SeaTable API 存储用户数据 + 阿里云 DirectMail 发送确认邮件
 
-import { sendEmail } from "./lib/alibaba-email.js";
+import { sendEmail } from "./_lib/alibaba-email.js";
 
 const CONFIG = {
   seatable: {
