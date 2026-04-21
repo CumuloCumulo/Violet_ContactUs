@@ -2,7 +2,7 @@
 // SeaTable API Gateway + 阿里云 DirectMail
 
 import { sendEmail } from "./_lib/alibaba-email.js";
-import { listRows, appendRows, deleteRow } from "./_lib/seatable.js";
+import { listRows, appendRows, deleteRows, deleteRow } from "./_lib/seatable.js";
 
 const TABLE = "Violet预注册";
 const TEMP_TABLE = "验证码临时";
@@ -27,11 +27,7 @@ async function storeCode(campusEmail, code) {
 
 // 删除旧验证码
 async function deleteOldCode(campusEmail) {
-  const rows = await listRows(TEMP_TABLE);
-  const oldRow = rows.find((r) => r["校园邮箱"] === campusEmail);
-  if (oldRow && oldRow._id) {
-    await deleteRow(TEMP_TABLE, oldRow._id);
-  }
+  await deleteRows(TEMP_TABLE, (r) => r["校园邮箱"] === campusEmail);
 }
 
 // 检查邮箱是否已注册

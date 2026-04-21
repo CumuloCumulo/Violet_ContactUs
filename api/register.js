@@ -2,15 +2,17 @@
 // SeaTable API Gateway + 阿里云 DirectMail
 
 import { sendEmail } from "./_lib/alibaba-email.js";
-import { listRows, appendRows, deleteRow } from "./_lib/seatable.js";
+import { listRows, appendRows, deleteRows } from "./_lib/seatable.js";
 
 const TABLE = "Violet预注册";
 const TEMP_TABLE = "验证码临时";
 
-// 从 SeaTable 获取验证码
+// 从 SeaTable 获取最新的验证码
 async function getStoredCode(campusEmail) {
   const rows = await listRows(TEMP_TABLE);
-  const row = rows.find((r) => r["校园邮箱"] === campusEmail);
+  const matched = rows.filter((r) => r["校园邮箱"] === campusEmail);
+  // 取最后一条（最新的）
+  const row = matched.length > 0 ? matched[matched.length - 1] : null;
   if (row) {
     const expiresAt = parseInt(row["过期时间"]);
     if (Date.now() < expiresAt) {
@@ -20,13 +22,9 @@ async function getStoredCode(campusEmail) {
   return null;
 }
 
-// 删除已使用的验证码
+// 删除已使用的验证码（删除所有匹配行）
 async function deleteStoredCode(campusEmail) {
-  const rows = await listRows(TEMP_TABLE);
-  const row = rows.find((r) => r["校园邮箱"] === campusEmail);
-  if (row && row._id) {
-    await deleteRow(TEMP_TABLE, row._id);
-  }
+  await deleteRows(TEMP_TABLE, (r) => r["校园邮箱"] === campusEmail);
 }
 
 // 检查用户名是否已存在

@@ -17,7 +17,6 @@ async function getAccessToken() {
   });
   const data = await res.json();
 
-  // access_token 有效期 3 天，提前 1 小时刷新
   tokenCache = {
     token: data.access_token,
     expires: Date.now() + 3 * 24 * 60 * 60 * 1000 - 60 * 60 * 1000,
@@ -60,7 +59,7 @@ export async function appendRows(tableName, rows) {
 // 删除行
 export async function deleteRow(tableName, rowId) {
   const token = await getAccessToken();
-  await fetch(
+  const res = await fetch(
     `${BASE_URL}/api-gateway/api/v2/dtables/${DTABLE_UUID}/rows/${rowId}/`,
     {
       method: "DELETE",
@@ -71,4 +70,19 @@ export async function deleteRow(tableName, rowId) {
       body: JSON.stringify({ table_name: tableName }),
     },
   );
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error("SeaTable deleteRow error:", res.status, errBody);
+  }
+}
+
+// 删除匹配条件的所有行
+export async function deleteRows(tableName, matchFn) {
+  const rows = await listRows(tableName);
+  const toDelete = rows.filter(matchFn);
+  for (const row of toDelete) {
+    if (row._id) {
+      await deleteRow(tableName, row._id);
+    }
+  }
 }
