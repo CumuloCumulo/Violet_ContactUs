@@ -725,7 +725,7 @@
                 </div>
                 <a href="#" class="btn-primary" style="padding: 10px 24px"
                     onclick="openModal(); return false;"
-                    >登录南大邮箱</a
+                    >抢先预注册</a
                 >
             </div>
         </header>
@@ -752,7 +752,7 @@
                             flex-wrap: wrap;
                         "
                     >
-                        <button class="btn-primary" onclick="openModal()">开始认证</button>
+                        <button class="btn-primary" onclick="openModal()">抢先预注册</button>
                     </div>
                 </div>
                 <div class="hero-visual fade-up delay-2">
@@ -1054,10 +1054,10 @@
                         准备好遇见同频的灵魂了吗？
                     </h2>
                     <p style="color: var(--ink-muted); margin-bottom: 2rem">
-                        使用南大邮箱认证，开启一段浪漫的破冰之旅。或者，成为军师围观真实的恋爱案例。
+                        产品上线前抢先预注册，上线后即可获得"吃螃蟹"货币奖励。南大邮箱验证，早到早得。
                     </p>
                     <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; align-items: center;">
-                        <a href="#" class="btn-primary" onclick="openModal(); return false;">申请当事人</a>
+                        <a href="#" class="btn-primary" onclick="openModal(); return false;">预注册 — 当事人</a>
                         <a
                             href="#"
                             class="btn-primary"
@@ -1068,7 +1068,7 @@
                                 box-shadow: none;
                             "
                             onclick="openModal(); return false;"
-                            >认证军师资质</a
+                            >预注册 — 军师</a
                         >
                     </div>
                     <div style="margin-top: 2.5rem; display: flex; flex-direction: column; align-items: center;">
@@ -1092,7 +1092,7 @@
                     <!-- Step 1: 校园邮箱 -->
                     <div class="reg-step active" id="step1">
                         <h3>校园认证</h3>
-                        <p class="step-desc">输入你的南大校园邮箱，我们将发送验证码</p>
+                        <p class="step-desc">输入南大校园邮箱完成验证，预注册上线后可获得"吃螃蟹"奖励</p>
                         <div class="reg-field">
                             <label for="campusEmail">校园邮箱</label>
                             <div class="email-input-group">
@@ -1132,14 +1132,14 @@
                             <div class="field-hint">注册成功后将向此邮箱发送确认信息</div>
                             <div class="field-error" id="notifyEmailError"></div>
                         </div>
-                        <button class="reg-btn" id="registerBtn" onclick="handleRegister()">完成注册</button>
+                        <button class="reg-btn" id="registerBtn" onclick="handleRegister()">完成预注册</button>
                     </div>
 
                     <!-- 成功 -->
                     <div class="reg-success" id="regSuccess">
                         <div class="success-icon">&#10003;</div>
                         <h3>预注册成功</h3>
-                        <p>确认信息已发送至你的常用邮箱。<br/>我们会在产品上线后第一时间通知你。</p>
+                        <p>确认信息已发送至你的常用邮箱。<br/>产品上线后你将获得"吃螃蟹"货币奖励，我们会在第一时间通知你。</p>
                     </div>
                 </div>
             </div>
@@ -1347,7 +1347,7 @@
 
                 var btn = document.getElementById('registerBtn');
                 btn.disabled = true;
-                btn.textContent = '注册中...';
+                btn.textContent = '提交中...';
 
                 callAPI('/register', {
                     campusEmail: campusEmail,
@@ -1371,7 +1371,7 @@
                             showToast(res.message);
                         }
                         btn.disabled = false;
-                        btn.textContent = '完成注册';
+                        btn.textContent = '完成预注册';
                     }
                 }, function() {
                     showToast('网络错误，请稍后重试');
